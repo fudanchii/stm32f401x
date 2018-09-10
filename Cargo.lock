@@ -1,0 +1,4 @@
+[[package]]
+name = "stm32f401x"
+version = "0.1.0"
+

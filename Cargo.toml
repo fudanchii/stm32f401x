@@ -1,0 +1,6 @@
+[package]
+name = "stm32f401x"
+version = "0.1.0"
+authors = ["Nurahmadie <nurahmadie@gmail.com>"]
+
+[dependencies]
