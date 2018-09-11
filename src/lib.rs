@@ -73,27 +73,35 @@ pub unsafe extern "C" fn system_init() {
 #[naked]
 #[no_mangle]
 #[inline(never)]
-pub unsafe extern "C" fn reset_memory() {
+pub unsafe extern "C" fn zero_bss() {
     extern "C" {
         static mut __bss_start__: u32;
         static mut __bss_end__: u32;
+    }
 
+    let mut bss: *mut _ = &mut __bss_start__;
+    let ebss: *mut _ = &mut __bss_end__;
+
+    while bss < ebss {
+        ptr::write_volatile(bss, mem::zeroed());
+        bss = bss.offset(1);
+    }
+}
+
+#[naked]
+#[no_mangle]
+#[inline(never)]
+pub unsafe extern "C" fn init_data() {
+    extern "C" {
         static mut __data_start__: u32;
         static mut __data_end__: u32;
 
         static mut __etext: u32;
     }
 
-    let mut bss: *mut _ = &mut __bss_start__;
-    let ebss: *mut _ = &mut __bss_end__;
     let mut data: *mut _ = &mut __data_start__;
     let edata: *mut _ = &mut __data_end__;
     let mut sidata: *mut _ = &mut __etext;
-
-    while bss < ebss {
-        ptr::write_volatile(bss, mem::zeroed());
-        bss = bss.offset(1);
-    }
 
     while data < edata {
         ptr::write(data, ptr::read(sidata));
@@ -110,10 +118,9 @@ extern "Rust" {
 #[naked]
 #[no_mangle]
 pub unsafe extern "C" fn reset_handler() -> ! {
-    reset_memory();
-
+    zero_bss();
+    init_data();
     system_init();
-
     main()
 }
 
