@@ -8,7 +8,7 @@ const GPIOD: *mut GPIO_TypeDef = GPIOD_BASE as *mut GPIO_TypeDef;
 const GPIOE: *mut GPIO_TypeDef = GPIOE_BASE as *mut GPIO_TypeDef;
 const GPIOH: *mut GPIO_TypeDef = GPIOH_BASE as *mut GPIO_TypeDef;
 
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
 pub enum Reg {
     ModeR0 = 0,
     ModeR1,
@@ -27,77 +27,112 @@ pub enum Reg {
     ModeR15,
 }
 
-pub enum Mode {
-    In = 0,
-    Out,
-    Alter,
-    Analog,
+pub trait Pin<PinMode> {
+    fn enable(reg: &Reg) -> PinMode;
+    fn disable();
 }
 
-pub trait Pin {
-    fn enable(reg: Reg, mode: Mode) -> Self;
-    fn disable();
-    fn on(&self);
-    fn off(&self);
-    fn set(&self, mode: Mode);
-    fn unset(&self, mode: Mode);
-}
+pub struct Input<Group>(Reg, Group);
+pub struct Output<Group>(Reg, Group);
 
 macro_rules! impl_gpio {
     ($x:ident,$group:ident,$enflag:ident) => {
-        impl Pin for $x {
-            fn enable(reg: Reg, mode: Mode) -> Self {
+        impl Pin<Output<$x>> for $x {
+            fn enable(reg: &Reg) -> Output<$x> {
                 unsafe {
                     (*RCC).AHB1ENR |= $enflag;
-                    (*$group).MODER |= (mode as u32) << ((reg as u8) << 1);
+                    (*$group).MODER |= 1 << ((*reg as u8) << 1);
                 }
-                $x(reg)
+                Output(*reg, $x())
             }
 
             fn disable() {
                 unsafe { (*RCC).AHB1ENR &= !$enflag; }
             }
+        }
 
-            fn on(&self) {
-                unsafe { (*$group).BSRR = 1 << (self.0 as u8); }
+        impl Pin<Input<$x>> for $x {
+            fn enable(reg: &Reg) -> Input<$x> {
+                unsafe {
+                    let moder = &(*$group).MODER;
+                    (*RCC).AHB1ENR |= $enflag;
+                    (*$group).MODER ^= moder & (3 << *reg as u8);
+                }
+                Input(*reg, $x())
             }
 
-            fn off(&self) {
+            fn disable() {
+                unsafe { (*RCC).AHB1ENR &= !$enflag; }
+            }
+        }
+
+        impl Output<$x> {
+            pub fn on(&self) {
+                unsafe { (*$group).BSRR = 1 << self.0 as u8; }
+            }
+
+            pub fn off(&self) {
                 unsafe { (*$group).BSRR = 1 << (self.0 as u8 + 16); }
             }
 
-            fn set(&self, mode: Mode) {
-                unsafe { (*$group).MODER |= (mode as u32) << ((self.0 as u8) << 1); }
+            pub fn pullup(&self) -> &Self {
+                unsafe {
+                    let pupdr = &(*$group).PUPDR;
+                    let tmp = (pupdr & (3 << ((self.0 as u8) << 1))) ^ pupdr;
+                    (*$group).PUPDR = tmp | (1 << ((self.0 as u8) << 1));
+                }
+                self
             }
 
-            fn unset(&self, mode: Mode) {
-                unsafe { (*$group).MODER &= !(mode as u32) << ((self.0 as u8) << 1); }
+            pub fn pulldown(&self) -> &Self {
+                unsafe {
+                    let pupdr = &(*$group).PUPDR;
+                    let tmp = (pupdr & (3 << ((self.0 as u8) << 1))) ^ pupdr;
+                    (*$group).PUPDR = tmp | (2 << ((self.0 as u8) << 1));
+                }
+                self
             }
 
+            pub fn pull_reset(&self) -> &Self {
+                unsafe {
+                    let pupdr = &(*$group).PUPDR;
+                    (*$group).PUPDR ^= pupdr & (3 << ((self.0 as u8) << 1));
+                }
+                self
+            }
+
+            pub fn push_pull(&self) -> &Self {
+                unsafe {
+                    let otyper = &(*$group).OTYPER;
+                    (*$group).OTYPER ^= otyper & (1 << self.0 as u8); 
+                }
+                self
+            }
+
+            pub fn open_drain(&self) -> &Self {
+                unsafe {
+                    (*$group).OTYPER |= 1 << self.0 as u8;
+                }
+                self
+            }
         }
     }
 }
 
-#[derive(Copy, Clone)]
-pub struct A(Reg);
+pub struct A();
 impl_gpio!(A, GPIOA, RCC_AHB1ENR_GPIOAEN);
 
-#[derive(Copy, Clone)]
-pub struct B(Reg);
+pub struct B();
 impl_gpio!(B, GPIOB, RCC_AHB1ENR_GPIOBEN);
 
-#[derive(Copy, Clone)]
-pub struct C(Reg);
+pub struct C();
 impl_gpio!(C, GPIOC, RCC_AHB1ENR_GPIOBEN);
 
-#[derive(Copy, Clone)]
-pub struct D(Reg);
+pub struct D();
 impl_gpio!(D, GPIOD, RCC_AHB1ENR_GPIOBEN);
 
-#[derive(Copy, Clone)]
-pub struct E(Reg);
+pub struct E();
 impl_gpio!(E, GPIOE, RCC_AHB1ENR_GPIOBEN);
 
-#[derive(Copy, Clone)]
-pub struct H(Reg);
+pub struct H();
 impl_gpio!(H, GPIOH, RCC_AHB1ENR_GPIOBEN);
