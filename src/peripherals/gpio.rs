@@ -126,13 +126,13 @@ pub struct B();
 impl_gpio!(B, GPIOB, RCC_AHB1ENR_GPIOBEN);
 
 pub struct C();
-impl_gpio!(C, GPIOC, RCC_AHB1ENR_GPIOBEN);
+impl_gpio!(C, GPIOC, RCC_AHB1ENR_GPIOCEN);
 
 pub struct D();
-impl_gpio!(D, GPIOD, RCC_AHB1ENR_GPIOBEN);
+impl_gpio!(D, GPIOD, RCC_AHB1ENR_GPIODEN);
 
 pub struct E();
-impl_gpio!(E, GPIOE, RCC_AHB1ENR_GPIOBEN);
+impl_gpio!(E, GPIOE, RCC_AHB1ENR_GPIOEEN);
 
 pub struct H();
-impl_gpio!(H, GPIOH, RCC_AHB1ENR_GPIOBEN);
+impl_gpio!(H, GPIOH, RCC_AHB1ENR_GPIOHEN);
