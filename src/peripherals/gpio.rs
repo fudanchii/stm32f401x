@@ -10,21 +10,21 @@ const GPIOH: *mut GPIO_TypeDef = GPIOH_BASE as *mut GPIO_TypeDef;
 
 #[derive(Copy, Clone)]
 pub enum Reg {
-    Moder0 = 0,
-    Moder1,
-    Moder2,
-    Moder3,
-    Moder4,
-    Moder5,
-    Moder7,
-    Moder8,
-    Moder9,
-    Moder10,
-    Moder11,
-    Moder12,
-    Moder13,
-    Moder14,
-    Moder15,
+    ModeR0 = 0,
+    ModeR1,
+    ModeR2,
+    ModeR3,
+    ModeR4,
+    ModeR5,
+    ModeR7,
+    ModeR8,
+    ModeR9,
+    ModeR10,
+    ModeR11,
+    ModeR12,
+    ModeR13,
+    ModeR14,
+    ModeR15,
 }
 
 pub enum Mode {
