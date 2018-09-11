@@ -20,6 +20,7 @@ use peripherals::*;
 
 #[naked]
 #[no_mangle]
+#[inline(always)]
 pub fn nop() {
     unsafe { asm!("nop"); }
 }
@@ -32,14 +33,14 @@ pub unsafe extern "C" fn system_init() {
     (*PWR).CR |= PWR_CR_VOS_1;
 
     while (&(*RCC).CR & RCC_CR_HSIRDY) == 0 {
-        asm!("nop");
+        nop();
     }
 
     (*PWR).CR |= (16 << 3) as u32;
     (*RCC).CR &= !RCC_CR_PLLON;
 
     while (&(*RCC).CR & RCC_CR_PLLRDY) != 0 {
-        asm!("nop");
+        nop();
     }
 
     (*RCC).PLLCFGR = 0x2000000 as u32
@@ -51,7 +52,7 @@ pub unsafe extern "C" fn system_init() {
     (*RCC).CR |= RCC_CR_PLLON;
 
     while (&(*RCC).CR & RCC_CR_PLLRDY) == 0 {
-        asm!("nop");
+        nop();
     }
 
     (*FLASH).ACR |= FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_2WS;
@@ -59,7 +60,7 @@ pub unsafe extern "C" fn system_init() {
     (*RCC).CFGR |= RCC_CFGR_SW_PLL;
 
     while (&(*RCC).CFGR & RCC_CFGR_SWS_PLL) != RCC_CFGR_SWS_PLL {
-        asm!("nop");
+        nop();
     }
 
     (*RCC).CFGR &= !RCC_CFGR_HPRE;
@@ -86,7 +87,7 @@ pub unsafe extern "C" fn reset_memory() {
     let mut bss: *mut _ = &mut __bss_start__;
     let ebss: *mut _ = &mut __bss_end__;
     let mut data: *mut _ = &mut __data_start__;
-    let edata: *mut _ = &mut __data_start__;
+    let edata: *mut _ = &mut __data_end__;
     let mut sidata: *mut _ = &mut __etext;
 
     while bss < ebss {
@@ -193,7 +194,7 @@ extern "C" {
 }
 
 pub union Vector {
-    nhandler: unsafe extern "C" fn() -> !,
+    noreturn: unsafe extern "C" fn() -> !,
     handler: unsafe extern "C" fn(),
     reserved: usize,
 }
@@ -203,7 +204,7 @@ pub union Vector {
 #[no_mangle]
 #[used]
 pub static isr_vector: [Vector; 100] = [
-    Vector { nhandler: reset_handler },
+    Vector { noreturn: reset_handler },
     Vector { handler: NMI_Handler },
     Vector { handler: HardFault_Handler },
     Vector { handler: MemManage_Handler},
