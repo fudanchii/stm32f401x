@@ -34,7 +34,7 @@ pub enum Mode {
     Analog,
 }
 
-pub trait gpio {
+pub trait Pin {
     fn enable(reg: Reg, mode: Mode) -> Self;
     fn disable();
     fn on(&self);
@@ -45,7 +45,7 @@ pub trait gpio {
 
 macro_rules! impl_gpio {
     ($x:ident,$group:ident,$enflag:ident) => {
-        impl gpio for $x {
+        impl Pin for $x {
             fn enable(reg: Reg, mode: Mode) -> Self {
                 unsafe {
                     (*RCC).AHB1ENR |= $enflag;
