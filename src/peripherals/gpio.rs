@@ -36,37 +36,68 @@ pub enum Mode {
 
 pub trait gpio {
     fn enable(reg: Reg, mode: Mode) -> Self;
+    fn disable();
+    fn on(&self);
+    fn off(&self);
+    fn set(&self, mode: Mode);
+    fn unset(&self, mode: Mode);
+}
+
+macro_rules! impl_gpio {
+    ($x:ident,$group:ident,$enflag:ident) => {
+        impl gpio for $x {
+            fn enable(reg: Reg, mode: Mode) -> Self {
+                unsafe {
+                    (*RCC).AHB1ENR |= $enflag;
+                    (*$group).MODER |= (mode as u32) << ((reg as u8) << 1);
+                }
+                $x(reg)
+            }
+
+            fn disable() {
+                unsafe { (*RCC).AHB1ENR &= !$enflag; }
+            }
+
+            fn on(&self) {
+                unsafe { (*$group).BSRR = 1 << (self.0 as u8); }
+            }
+
+            fn off(&self) {
+                unsafe { (*$group).BSRR = 1 << (self.0 as u8 + 16); }
+            }
+
+            fn set(&self, mode: Mode) {
+                unsafe { (*$group).MODER |= (mode as u32) << ((self.0 as u8) << 1); }
+            }
+
+            fn unset(&self, mode: Mode) {
+                unsafe { (*$group).MODER &= !(mode as u32) << ((self.0 as u8) << 1); }
+            }
+
+        }
+    }
 }
 
 #[derive(Copy, Clone)]
 pub struct A(Reg);
+impl_gpio!(A, GPIOA, RCC_AHB1ENR_GPIOAEN);
 
-impl A {
-    pub fn enable(reg: Reg, mode: Mode) -> Self {
-        unsafe {
-            (*RCC).AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
-            (*GPIOA).MODER |= (mode as u32) << ((reg as u8) << 1);
-        }
-        A(reg)
-    }
+#[derive(Copy, Clone)]
+pub struct B(Reg);
+impl_gpio!(B, GPIOB, RCC_AHB1ENR_GPIOBEN);
 
-    pub fn disable() {
-        unsafe { (*RCC).AHB1ENR &= !RCC_AHB1ENR_GPIOAEN; }
-    }
+#[derive(Copy, Clone)]
+pub struct C(Reg);
+impl_gpio!(C, GPIOC, RCC_AHB1ENR_GPIOBEN);
 
-    pub fn on(&self) {
-        unsafe { (*GPIOA).BSRR = 1 << (self.0 as u8); }
-    }
+#[derive(Copy, Clone)]
+pub struct D(Reg);
+impl_gpio!(D, GPIOD, RCC_AHB1ENR_GPIOBEN);
 
-    pub fn off(&self) {
-        unsafe { (*GPIOA).BSRR = 1 << (self.0 as u8 + 16); }
-    }
+#[derive(Copy, Clone)]
+pub struct E(Reg);
+impl_gpio!(E, GPIOE, RCC_AHB1ENR_GPIOBEN);
 
-    pub fn set(&self, mode: Mode) {
-        unsafe { (*GPIOA).MODER |= (mode as u32) << ((self.0 as u8) << 1); }
-    }
-
-    pub fn unset(&self, mode: Mode) {
-        unsafe { (*GPIOA).MODER &= !(mode as u32) << ((self.0 as u8) << 1); }
-    }
-}
+#[derive(Copy, Clone)]
+pub struct H(Reg);
+impl_gpio!(H, GPIOH, RCC_AHB1ENR_GPIOBEN);
