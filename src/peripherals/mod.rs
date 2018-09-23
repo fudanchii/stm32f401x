@@ -68,5 +68,3 @@ pub const DMA2_Stream6: *mut DMA_Stream_TypeDef = DMA2_Stream6_BASE as *mut DMA_
 pub const DMA2_Stream7: *mut DMA_Stream_TypeDef = DMA2_Stream7_BASE as *mut DMA_Stream_TypeDef;
 
 pub const DBGMCU: *mut DBGMCU_TypeDef = DBGMCU_BASE as *mut DBGMCU_TypeDef;
-
-
