@@ -27,17 +27,18 @@ pub fn enable_pll() {
 //! st32f401re has 84MHz general clock
 //! and 48MHz peripherals clock (USB_OTG, SDIO, etc)
 pub fn config_pll(input: InputClock) {
+    const f_pll = 84;
+    const f_peripherals = 48;
+
     let f_pll_input = match input {
         InputClock::HSI => 16,
         InputClock::HSE => 8,
     };
-    let f_pll = 84;
-    let f_peripherals = 48;
     let n = 336;
     let m = &f_pll_input;
     let f_vco = &f_pll_input * (&n / &m);
-    let p = &f_vco / 84;
-    let q = &f_vco / 48;
+    let p = &f_vco / f_pll;
+    let q = &f_vco / f_peripherals;
 
     unsafe {
         (*RCC).PLLCFGR = (q << 24) | (input as u32) | (p << 16) | (n << 6) | m;
