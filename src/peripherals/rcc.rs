@@ -39,7 +39,9 @@ pub fn config_pll(input: InputClock) {
     let p = &f_vco / 84;
     let q = &f_vco / 48;
 
-    (*RCC).PLLCFGR = (q << 24) | (f_pll_src << 22) | (p << 16) | (n << 6) | m;
+    unsafe {
+        (*RCC).PLLCFGR = (q << 24) | (f_pll_src << 22) | (p << 16) | (n << 6) | m;
+    }
 }
 
 pub fn pll_ready() -> bool {
