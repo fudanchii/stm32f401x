@@ -17,6 +17,12 @@ pub fn disable_pll() {
     }
 }
 
+pub fn enable_pll() {
+    unsafe {
+        (*RCC).CR |= RCC_CR_PLLON;
+    }
+}
+
 //! Hardcode default max clock for this board
 //! st32f401re has 84MHz general clock
 //! and 48MHz peripherals clock (USB_OTG, SDIO, etc)
@@ -29,17 +35,11 @@ pub fn config_pll(input: InputClock) {
     let f_peripherals = 48;
     let n = 336;
     let m = &f_pll_input;
-    let f_vco = &f_pll_input * (336 / &m);
+    let f_vco = &f_pll_input * (&n / &m);
     let p = &f_vco / 84;
     let q = &f_vco / 48;
 
     (*RCC).PLLCFGR = (q << 24) | (f_pll_src << 22) | (p << 16) | (n << 6) | m;
-}
-
-pub fn enable_pll() {
-    unsafe {
-        (*RCC).CR |= RCC_CR_PLLON;
-    }
 }
 
 pub fn pll_ready() -> bool {
