@@ -1,4 +1,3 @@
-use peripherals::RCC;
 use stm32f401x::*;
 
 const GPIOA: *mut GPIO_TypeDef = GPIOA_BASE as *mut GPIO_TypeDef;
@@ -28,14 +27,13 @@ pub enum Reg {
 }
 
 pub trait Pin<PinMode> {
-    fn enable(reg: Reg) -> PinMode;
-    fn disable();
+    fn enable(&'static self, reg: Reg) -> PinMode;
 }
 
-pub struct Input<Group>(Reg, Group);
-pub struct Output<Group>(Reg, Group);
-pub struct Analog<Group>(Reg, Group);
-pub struct Alternate<Group>(Reg, Group);
+pub struct Input<Group: 'static>(Reg, &'static Group);
+pub struct Output<Group: 'static>(Reg, &'static Group);
+pub struct Analog<Group: 'static>(Reg, &'static Group);
+pub struct Alternate<Group: 'static>(Reg, &'static Group);
 
 pub struct A();
 pub struct B();
@@ -44,8 +42,43 @@ pub struct D();
 pub struct E();
 pub struct H();
 
+impl A {
+    fn enable() -> A {
+        rcc::AHB1::enable_gpioa();
+        A()
+    }
+}
+
+impl B {
+    fn enable() -> B {
+        rcc::AHB1::enable_gpiob();
+        B()
+    }
+}
+
+impl C {
+    fn enable() -> C {
+        rcc::AHB1::enable_gpioc();
+        C()
+    }
+}
+
+impl D {
+    fn enable() -> D {
+        rcc::AHB1::enable_gpiod();
+        D()
+    }
+}
+
+impl E {
+    fn enable() -> E {
+        rcc::AHB1::enable_gpioe();
+        E()
+    }
+}
+
 macro_rules! impl_gpio {
-    ($x:ident,$group:ident,$enflag:ident) => {
+    ($x:ident,$group:ident) => {
         impl $x {
             fn float(pin: &u8) {
                 unsafe {
@@ -114,71 +147,43 @@ macro_rules! impl_gpio {
         }
 
         impl Pin<Output<$x>> for $x {
-            fn enable(reg: Reg) -> Output<$x> {
+            fn enable(&'static self, reg: Reg) -> Output<$x> {
                 unsafe {
                     let moder = &(*$group).MODER;
-                    (*RCC).AHB1ENR |= $enflag;
                     (*$group).MODER ^= moder & (3 << ((reg as u8) << 1));
                     (*$group).MODER |= 1 << ((reg as u8) << 1);
                 }
-                Output(reg, $x())
-            }
-
-            fn disable() {
-                unsafe {
-                    (*RCC).AHB1ENR &= !$enflag;
-                }
+                Output(reg, self)
             }
         }
 
         impl Pin<Input<$x>> for $x {
-            fn enable(reg: Reg) -> Input<$x> {
+            fn enable(&'static self, reg: Reg) -> Input<$x> {
                 unsafe {
                     let moder = &(*$group).MODER;
-                    (*RCC).AHB1ENR |= $enflag;
                     (*$group).MODER ^= moder & (3 << ((reg as u8) << 1));
                 }
-                Input(reg, $x())
-            }
-
-            fn disable() {
-                unsafe {
-                    (*RCC).AHB1ENR &= !$enflag;
-                }
+                Input(reg, self)
             }
         }
 
         impl Pin<Alternate<$x>> for $x {
-            fn enable(reg: Reg) -> Alternate<$x> {
+            fn enable(&'static self, reg: Reg) -> Alternate<$x> {
                 unsafe {
                     let moder = &(*$group).MODER;
-                    (*RCC).AHB1ENR |= $enflag;
                     (*$group).MODER ^= moder & (3 << ((reg as u8) << 1));
                     (*$group).MODER |= 2 << ((reg as u8) << 1);
                 }
-                Alternate(reg, $x())
-            }
-
-            fn disable() {
-                unsafe {
-                    (*RCC).AHB1ENR &= !$enflag;
-                }
+                Alternate(reg, self)
             }
         }
 
         impl Pin<Analog<$x>> for $x {
-            fn enable(reg: Reg) -> Analog<$x> {
+            fn enable(&'static self, reg: Reg) -> Analog<$x> {
                 unsafe {
-                    (*RCC).AHB1ENR |= $enflag;
                     (*$group).MODER |= 3 << ((reg as u8) << 1);
                 }
-                Analog(reg, $x())
-            }
-
-            fn disable() {
-                unsafe {
-                    (*RCC).AHB1ENR &= !$enflag;
-                }
+                Analog(reg, self)
             }
         }
 
@@ -325,9 +330,9 @@ macro_rules! impl_gpio {
     };
 }
 
-impl_gpio!(A, GPIOA, RCC_AHB1ENR_GPIOAEN);
-impl_gpio!(B, GPIOB, RCC_AHB1ENR_GPIOBEN);
-impl_gpio!(C, GPIOC, RCC_AHB1ENR_GPIOCEN);
-impl_gpio!(D, GPIOD, RCC_AHB1ENR_GPIODEN);
-impl_gpio!(E, GPIOE, RCC_AHB1ENR_GPIOEEN);
-impl_gpio!(H, GPIOH, RCC_AHB1ENR_GPIOHEN);
+impl_gpio!(A, GPIOA);
+impl_gpio!(B, GPIOB);
+impl_gpio!(C, GPIOC);
+impl_gpio!(D, GPIOD);
+impl_gpio!(E, GPIOE);
+impl_gpio!(H, GPIOH);

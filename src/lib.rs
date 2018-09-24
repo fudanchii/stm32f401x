@@ -29,29 +29,38 @@ pub fn nop() {
 #[no_mangle]
 #[inline(never)]
 pub unsafe extern "C" fn system_init() {
-    (*RCC).APB1ENR |= RCC_APB1LPENR_PWRLPEN;
-    (*PWR).CR |= PWR_CR_VOS_1;
+    rcc::APB1::enable_pwr();
 
-    while (&(*RCC).CR & RCC_CR_HSIRDY) == 0 {
+    while !rcc::hsi_ready() {
         nop();
     }
 
-    (*PWR).CR |= (16 << 3) as u32;
-    (*RCC).CR &= !RCC_CR_PLLON;
+    rcc::disable_pll();
 
-    while (&(*RCC).CR & RCC_CR_PLLRDY) != 0 {
+    while rcc::pll_ready() {
         nop();
     }
 
-    (*RCC).PLLCFGR = 0x2000000 as u32
-        | ((7 as u32) << 24)
-        | ((1 as u32) << 16)
-        | ((336 as u32) << 6)
-        | ((16 as u32) << 0);
+    pwr::CR::set(
+        pwr::VOS::Scale2,
+        pwr::ADCDC1::Unset,
+        pwr::MRLVDS::Unset,
+        pwr::LPLVDS::Unset,
+        pwr::FPDS::Unset,
+        pwr::DBP::Unset,
+        pwr::PLS::Level4,
+        pwr::PVDE::Unset,
+        pwr::CSBF::Unset,
+        pwr::CWUF::Unset,
+        pwr::PDDS::Unset,
+        pwr::LPDS::Unset,
+    );
 
-    (*RCC).CR |= RCC_CR_PLLON;
+    rcc::config_pll(rcc::InputClock::HSI);
 
-    while (&(*RCC).CR & RCC_CR_PLLRDY) == 0 {
+    rcc::enable_pll();
+
+    while !rcc::pll_ready() {
         nop();
     }
 
