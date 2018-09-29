@@ -14,6 +14,8 @@ pub type c_double = f64;
 
 #[repr(u8)]
 pub enum c_void {
-    #[doc(hidden)] __variant1,
-    #[doc(hidden)] __variant2,
+    #[doc(hidden)]
+    __variant1,
+    #[doc(hidden)]
+    __variant2,
 }

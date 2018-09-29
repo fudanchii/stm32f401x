@@ -10,7 +10,7 @@ pub fn setup() {
     unsafe {
         (*FLASH).ACR |= FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_2WS;
         while ((*FLASH).ACR & FLASH_ACR_LATENCY_2WS) != FLASH_ACR_LATENCY_2WS {
-           asm!("nop"); 
+            asm!("nop");
         }
     }
 }

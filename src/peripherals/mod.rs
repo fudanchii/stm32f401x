@@ -65,4 +65,3 @@ pub const DMA2_Stream4: *mut DMA_Stream_TypeDef = DMA2_Stream4_BASE as *mut DMA_
 pub const DMA2_Stream5: *mut DMA_Stream_TypeDef = DMA2_Stream5_BASE as *mut DMA_Stream_TypeDef;
 pub const DMA2_Stream6: *mut DMA_Stream_TypeDef = DMA2_Stream6_BASE as *mut DMA_Stream_TypeDef;
 pub const DMA2_Stream7: *mut DMA_Stream_TypeDef = DMA2_Stream7_BASE as *mut DMA_Stream_TypeDef;
-
