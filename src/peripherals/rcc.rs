@@ -9,10 +9,15 @@ pub enum InputClock {
     HSE = RCC_PLLCFGR_PLLSRC_HSE,
 }
 
+
+#[naked]
+#[inline(always)]
 pub fn hsi_ready() -> bool {
     unsafe { ((*RCC).CR & RCC_CR_HSIRDY) == RCC_CR_HSIRDY }
 }
 
+#[naked]
+#[inline(always)]
 pub fn disable_pll() {
     unsafe {
         (*RCC).CR &= !RCC_CR_PLLON;
@@ -23,6 +28,8 @@ pub fn disable_pll() {
     }
 }
 
+#[naked]
+#[inline(always)]
 pub fn enable_pll() {
     unsafe {
         (*RCC).CR |= RCC_CR_PLLON;
@@ -33,6 +40,8 @@ pub fn enable_pll() {
     }
 }
 
+#[naked]
+#[inline(always)]
 pub fn use_pll() {
     embedded_flash::setup();
 
@@ -59,6 +68,8 @@ pub fn use_pll() {
 // Hardcode default max clock for this board
 // st32f401re has 84MHz general clock
 // and 48MHz peripherals clock (USB_OTG, SDIO, etc)
+#[naked]
+#[inline(always)]
 pub fn config_pll(input: InputClock) {
     const f_pll: u32 = 84;
     const f_peripherals: u32 = 48;
@@ -78,6 +89,8 @@ pub fn config_pll(input: InputClock) {
     }
 }
 
+#[naked]
+#[inline(always)]
 pub fn pll_ready() -> bool {
     unsafe { (*RCC).CR & RCC_CR_PLLRDY == RCC_CR_PLLRDY }
 }
@@ -86,36 +99,48 @@ pub mod AHB1 {
     use super::RCC;
     use stm32f401x::*;
 
+    #[naked]
+    #[inline(always)]
     pub fn enable_gpioa() {
         unsafe {
             (*RCC).AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
         }
     }
 
+    #[naked]
+    #[inline(always)]
     pub fn enable_gpiob() {
         unsafe {
             (*RCC).AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
         }
     }
 
+    #[naked]
+    #[inline(always)]
     pub fn enable_gpioc() {
         unsafe {
             (*RCC).AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
         }
     }
 
+    #[naked]
+    #[inline(always)]
     pub fn enable_gpiod() {
         unsafe {
             (*RCC).AHB1ENR |= RCC_AHB1ENR_GPIODEN;
         }
     }
 
+    #[naked]
+    #[inline(always)]
     pub fn enable_gpioe() {
         unsafe {
             (*RCC).AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
         }
     }
 
+    #[naked]
+    #[inline(always)]
     pub fn enable_gpioh() {
         unsafe {
             (*RCC).AHB1ENR |= RCC_AHB1ENR_GPIOHEN;
@@ -127,6 +152,8 @@ pub mod APB1 {
     use super::RCC;
     use stm32f401x::*;
 
+    #[naked]
+    #[inline(always)]
     pub fn enable_pwr() {
         unsafe {
             (*RCC).APB1ENR |= RCC_APB1ENR_PWREN;

@@ -37,6 +37,8 @@ pub enum DebugSleep {
 pub mod CR {
     use super::*;
 
+    #[naked]
+    #[inline(always)]
     pub fn set(
         tr: TraceMode,
         io: TraceIO,

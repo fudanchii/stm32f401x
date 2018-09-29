@@ -83,6 +83,7 @@ pub enum LPDS {
 pub mod CR {
     use super::*;
 
+    #[naked]
     #[inline(always)]
     pub fn set(
         vos: VOS,
