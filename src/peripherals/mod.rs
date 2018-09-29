@@ -1,6 +1,10 @@
 use stm32f401x::*;
 
+pub mod dbgmcu;
+pub mod embedded_flash;
 pub mod gpio;
+pub mod pwr;
+pub mod rcc;
 
 pub const TIM1: *mut TIM_TypeDef = TIM1_BASE as *mut TIM_TypeDef;
 pub const TIM2: *mut TIM_TypeDef = TIM2_BASE as *mut TIM_TypeDef;
@@ -32,8 +36,6 @@ pub const I2C1: *mut I2C_TypeDef = I2C1_BASE as *mut I2C_TypeDef;
 pub const I2C2: *mut I2C_TypeDef = I2C2_BASE as *mut I2C_TypeDef;
 pub const I2C3: *mut I2C_TypeDef = I2C3_BASE as *mut I2C_TypeDef;
 
-pub const PWR: *mut PWR_TypeDef = PWR_BASE as *mut PWR_TypeDef;
-
 pub const ADC1: *mut ADC_TypeDef = ADC1_BASE as *mut ADC_TypeDef;
 pub const ADC1_COMMON: *mut ADC_Common_TypeDef = ADC1_COMMON_BASE as *mut ADC_Common_TypeDef;
 
@@ -43,9 +45,6 @@ pub const SYSCFG: *mut SYSCFG_TypeDef = SYSCFG_BASE as *mut SYSCFG_TypeDef;
 pub const EXTI: *mut EXTI_TypeDef = EXTI_BASE as *mut EXTI_TypeDef;
 
 pub const CRC: *mut CRC_TypeDef = CRC_BASE as *mut CRC_TypeDef;
-pub const RCC: *mut RCC_TypeDef = RCC_BASE as *mut RCC_TypeDef;
-
-pub const FLASH: *mut FLASH_TypeDef = FLASH_R_BASE as *mut FLASH_TypeDef;
 
 pub const DMA1: *mut DMA_TypeDef = DMA1_BASE as *mut DMA_TypeDef;
 pub const DMA1_Stream0: *mut DMA_Stream_TypeDef = DMA1_Stream0_BASE as *mut DMA_Stream_TypeDef;
@@ -66,5 +65,3 @@ pub const DMA2_Stream4: *mut DMA_Stream_TypeDef = DMA2_Stream4_BASE as *mut DMA_
 pub const DMA2_Stream5: *mut DMA_Stream_TypeDef = DMA2_Stream5_BASE as *mut DMA_Stream_TypeDef;
 pub const DMA2_Stream6: *mut DMA_Stream_TypeDef = DMA2_Stream6_BASE as *mut DMA_Stream_TypeDef;
 pub const DMA2_Stream7: *mut DMA_Stream_TypeDef = DMA2_Stream7_BASE as *mut DMA_Stream_TypeDef;
-
-pub const DBGMCU: *mut DBGMCU_TypeDef = DBGMCU_BASE as *mut DBGMCU_TypeDef;
