@@ -1,5 +1,7 @@
 use stm32f401x::*;
 
+pub mod dbgmcu;
+pub mod embedded_flash;
 pub mod gpio;
 pub mod pwr;
 pub mod rcc;
@@ -44,8 +46,6 @@ pub const EXTI: *mut EXTI_TypeDef = EXTI_BASE as *mut EXTI_TypeDef;
 
 pub const CRC: *mut CRC_TypeDef = CRC_BASE as *mut CRC_TypeDef;
 
-pub const FLASH: *mut FLASH_TypeDef = FLASH_R_BASE as *mut FLASH_TypeDef;
-
 pub const DMA1: *mut DMA_TypeDef = DMA1_BASE as *mut DMA_TypeDef;
 pub const DMA1_Stream0: *mut DMA_Stream_TypeDef = DMA1_Stream0_BASE as *mut DMA_Stream_TypeDef;
 pub const DMA1_Stream1: *mut DMA_Stream_TypeDef = DMA1_Stream1_BASE as *mut DMA_Stream_TypeDef;
@@ -66,4 +66,3 @@ pub const DMA2_Stream5: *mut DMA_Stream_TypeDef = DMA2_Stream5_BASE as *mut DMA_
 pub const DMA2_Stream6: *mut DMA_Stream_TypeDef = DMA2_Stream6_BASE as *mut DMA_Stream_TypeDef;
 pub const DMA2_Stream7: *mut DMA_Stream_TypeDef = DMA2_Stream7_BASE as *mut DMA_Stream_TypeDef;
 
-pub const DBGMCU: *mut DBGMCU_TypeDef = DBGMCU_BASE as *mut DBGMCU_TypeDef;

@@ -15,17 +15,48 @@ pub fn disable_pll() {
     unsafe {
         (*RCC).CR &= !RCC_CR_PLLON;
     }
+
+    while rcc::pll_ready() {
+        nop();
+    }
 }
 
 pub fn enable_pll() {
     unsafe {
         (*RCC).CR |= RCC_CR_PLLON;
     }
+
+    while !rcc::pll_ready() {
+        nop();
+    }
 }
 
-//! Hardcode default max clock for this board
-//! st32f401re has 84MHz general clock
-//! and 48MHz peripherals clock (USB_OTG, SDIO, etc)
+pub fn use_pll() {
+    embedded_flash::setup();
+
+    unsafe {
+        // use PLL
+        (*RCC).CFGR |= RCC_CFGR_SW_PLL;
+
+        // wait until cpu clock switched to PLL
+        while (&(*RCC).CFGR & RCC_CFGR_SWS_PLL) != RCC_CFGR_SWS_PLL {
+            nop();
+        }
+
+        // doesn't divide clock for AHB
+        (*RCC).CFGR &= !RCC_CFGR_HPRE;
+
+        // divide APB1 clock by 2 (84MHz -> 42MHz)
+        (*RCC).CFGR |= RCC_CFGR_PPRE1_DIV2;
+
+        // doesn't divide clock for APB2
+        (*RCC).CFGR &= !RCC_CFGR_PPRE2;
+    }
+}
+
+// Hardcode default max clock for this board
+// st32f401re has 84MHz general clock
+// and 48MHz peripherals clock (USB_OTG, SDIO, etc)
 pub fn config_pll(input: InputClock) {
     const f_pll = 84;
     const f_peripherals = 48;

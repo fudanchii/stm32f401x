@@ -37,10 +37,6 @@ pub unsafe extern "C" fn system_init() {
 
     rcc::disable_pll();
 
-    while rcc::pll_ready() {
-        nop();
-    }
-
     pwr::CR::set(
         pwr::VOS::Scale2,
         pwr::ADCDC1::Unset,
@@ -57,26 +53,16 @@ pub unsafe extern "C" fn system_init() {
     );
 
     rcc::config_pll(rcc::InputClock::HSI);
-
     rcc::enable_pll();
+    rcc::use_pll();
 
-    while !rcc::pll_ready() {
-        nop();
-    }
-
-    (*FLASH).ACR |= FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | FLASH_ACR_LATENCY_2WS;
-
-    (*RCC).CFGR |= RCC_CFGR_SW_PLL;
-
-    while (&(*RCC).CFGR & RCC_CFGR_SWS_PLL) != RCC_CFGR_SWS_PLL {
-        nop();
-    }
-
-    (*RCC).CFGR &= !RCC_CFGR_HPRE;
-    (*RCC).CFGR |= RCC_CFGR_PPRE1_DIV2;
-    (*RCC).CFGR &= !RCC_CFGR_PPRE2;
-
-    (*DBGMCU).CR |= DBGMCU_CR_DBG_SLEEP | DBGMCU_CR_DBG_STANDBY | DBGMCU_CR_DBG_STOP;
+    dbgmcu::CR::set(
+        dbgmcu::TraceMode::Async,
+        dbgmcu::TraceIO::Disable,
+        dbgmcu::DebugStandby::Enable,
+        dbgmcu::DebugStop::Enable,
+        dbgmcu::DebugSleep::Enable,
+    );
 }
 
 #[naked]
@@ -138,7 +124,7 @@ pub static __RESET_VECTOR: unsafe extern "C" fn() -> ! = reset_handler;
 #[naked]
 #[no_mangle]
 pub unsafe extern "C" fn default_handler() -> ! {
-    loop {}
+    asm!("bkpt");
 }
 
 extern "C" {
