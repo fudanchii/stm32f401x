@@ -44,37 +44,44 @@ pub struct E();
 pub struct H();
 
 impl A {
-    fn enable() -> A {
+    pub fn enable() -> A {
         rcc::AHB1::enable_gpioa();
         A()
     }
 }
 
 impl B {
-    fn enable() -> B {
+    pub fn enable() -> B {
         rcc::AHB1::enable_gpiob();
         B()
     }
 }
 
 impl C {
-    fn enable() -> C {
+    pub fn enable() -> C {
         rcc::AHB1::enable_gpioc();
         C()
     }
 }
 
 impl D {
-    fn enable() -> D {
+    pub fn enable() -> D {
         rcc::AHB1::enable_gpiod();
         D()
     }
 }
 
 impl E {
-    fn enable() -> E {
+    pub fn enable() -> E {
         rcc::AHB1::enable_gpioe();
         E()
+    }
+}
+
+impl H {
+    pub fn enable() -> H {
+        rcc::AHB1::enable_gpioh();
+        H()
     }
 }
 
