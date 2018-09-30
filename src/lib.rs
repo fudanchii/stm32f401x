@@ -9,22 +9,18 @@
 #![feature(used)]
 #![feature(asm)]
 
+extern crate embedded_hal;
+
 use core::{mem, ptr};
 
+pub mod asm;
 pub mod ctypes;
+pub mod hal;
 pub mod peripherals;
 pub mod stm32f401x;
 
+use asm::*;
 use peripherals::*;
-
-#[naked]
-#[no_mangle]
-#[inline(always)]
-pub fn nop() {
-    unsafe {
-        asm!("nop");
-    }
-}
 
 #[naked]
 #[no_mangle]

@@ -5,6 +5,7 @@ pub mod embedded_flash;
 pub mod gpio;
 pub mod pwr;
 pub mod rcc;
+pub mod systick;
 
 pub const TIM1: *mut TIM_TypeDef = TIM1_BASE as *mut TIM_TypeDef;
 pub const TIM2: *mut TIM_TypeDef = TIM2_BASE as *mut TIM_TypeDef;

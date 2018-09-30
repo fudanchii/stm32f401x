@@ -9,7 +9,6 @@ pub enum InputClock {
     HSE = RCC_PLLCFGR_PLLSRC_HSE,
 }
 
-
 #[naked]
 #[inline(always)]
 pub fn hsi_ready() -> bool {

@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Nurahmadie <nurahmadie@gmail.com>"]
 
 [dependencies]
+embedded-hal = "*"

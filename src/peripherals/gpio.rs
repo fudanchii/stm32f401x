@@ -28,13 +28,13 @@ pub enum Reg {
 }
 
 pub trait Pin<PinMode> {
-    fn enable(&'static self, reg: Reg) -> PinMode;
+    fn enable(self, reg: Reg) -> PinMode;
 }
 
-pub struct Input<Group: 'static>(Reg, &'static Group);
-pub struct Output<Group: 'static>(Reg, &'static Group);
-pub struct Analog<Group: 'static>(Reg, &'static Group);
-pub struct Alternate<Group: 'static>(Reg, &'static Group);
+pub struct Input<Group>(Reg, Group);
+pub struct Output<Group>(Reg, Group);
+pub struct Analog<Group>(Reg, Group);
+pub struct Alternate<Group>(Reg, Group);
 
 pub struct A();
 pub struct B();
@@ -148,7 +148,7 @@ macro_rules! impl_gpio {
         }
 
         impl Pin<Output<$x>> for $x {
-            fn enable(&'static self, reg: Reg) -> Output<$x> {
+            fn enable(self, reg: Reg) -> Output<$x> {
                 unsafe {
                     let moder = &(*$group).MODER;
                     (*$group).MODER ^= moder & (3 << ((reg as u8) << 1));
@@ -159,7 +159,7 @@ macro_rules! impl_gpio {
         }
 
         impl Pin<Input<$x>> for $x {
-            fn enable(&'static self, reg: Reg) -> Input<$x> {
+            fn enable(self, reg: Reg) -> Input<$x> {
                 unsafe {
                     let moder = &(*$group).MODER;
                     (*$group).MODER ^= moder & (3 << ((reg as u8) << 1));
@@ -169,7 +169,7 @@ macro_rules! impl_gpio {
         }
 
         impl Pin<Alternate<$x>> for $x {
-            fn enable(&'static self, reg: Reg) -> Alternate<$x> {
+            fn enable(self, reg: Reg) -> Alternate<$x> {
                 unsafe {
                     let moder = &(*$group).MODER;
                     (*$group).MODER ^= moder & (3 << ((reg as u8) << 1));
@@ -180,7 +180,7 @@ macro_rules! impl_gpio {
         }
 
         impl Pin<Analog<$x>> for $x {
-            fn enable(&'static self, reg: Reg) -> Analog<$x> {
+            fn enable(self, reg: Reg) -> Analog<$x> {
                 unsafe {
                     (*$group).MODER |= 3 << ((reg as u8) << 1);
                 }
